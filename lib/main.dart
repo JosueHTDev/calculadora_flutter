@@ -12,7 +12,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Rojas Calculadora',
-      theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)),
+      theme: ThemeData.dark().copyWith(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.grey[850]!,
+          brightness: Brightness.dark,
+        ),
+        scaffoldBackgroundColor: Colors.grey[900],
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.grey[850],
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
+      ),
       home: const MyHomePage(title: 'Calculadora'),
     );
   }
@@ -102,207 +113,175 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: TextField(
-                controller: _ctrlDisplay,
-                textAlign: TextAlign.right,
-                readOnly: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Resultado'
+      body: Container(
+        color: Colors.grey[900],
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                margin: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                decoration: BoxDecoration(
+                  color: Colors.grey[800],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[700]!, width: 1),
+                ),
+                child: TextField(
+                  controller: _ctrlDisplay,
+                  textAlign: TextAlign.right,
+                  readOnly: true,
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.white,
+                    letterSpacing: 1.2,
+                  ),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    hintText: '0',
+                    hintStyle: TextStyle(color: Colors.grey),
+                  ),
                 ),
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: _clear,
-                  child: Text("C"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
+              
+              Container(
+                width: 340,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[850],
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: _backspace,
-                  child: Icon(Icons.backspace),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildOperationButton("C", Colors.grey[600]!, onPressed: _clear),
+                        _buildOperationButton("⌫", Colors.grey[600]!, onPressed: _backspace, isIcon: true),
+                        _buildOperationButton("%", Colors.grey[600]!, onPressed: () => setAux1("%")),
+                        _buildOperationButton("÷", Colors.orange[700]!, onPressed: () => setAux1("÷")),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildNumberButton("7"),
+                        _buildNumberButton("8"),
+                        _buildNumberButton("9"),
+                        _buildOperationButton("×", Colors.orange[700]!, onPressed: () => setAux1("×")),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildNumberButton("4"),
+                        _buildNumberButton("5"),
+                        _buildNumberButton("6"),
+                        _buildOperationButton("-", Colors.orange[700]!, onPressed: () => setAux1("-")),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildNumberButton("1"),
+                        _buildNumberButton("2"),
+                        _buildNumberButton("3"),
+                        _buildOperationButton("+", Colors.orange[700]!, onPressed: () => setAux1("+")),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildNumberButton("0", isZero: true),
+                        _buildNumberButton("."),
+                        _buildOperationButton("=", Colors.orange[700]!, onPressed: () {
+                          setAux2();
+                          calcular();
+                        }),
+                      ],
+                    ),
+                  ],
                 ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => setAux1("%"),
-                  child: Text("%"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => setAux1("÷"),
-                  child: Text("÷"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _addNumber("7"),
-                  child: Text("7"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => _addNumber("8"),
-                  child: Text("8"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => _addNumber("9"),
-                  child: Text("9"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => setAux1("×"),
-                  child: Text("×"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _addNumber("4"),
-                  child: Text("4"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => _addNumber("5"),
-                  child: Text("5"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => _addNumber("6"),
-                  child: Text("6"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => setAux1("-"),
-                  child: Text("-"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _addNumber("1"),
-                  child: Text("1"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => _addNumber("2"),
-                  child: Text("2"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => _addNumber("3"),
-                  child: Text("3"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => setAux1("+"),
-                  child: Text("+"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () => _addNumber("0"),
-                  child: Text("0"),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(150, 70),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () => _addNumber("."),
-                  child: Text("."),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    setAux2();
-                    calcular();
-                  },
-                  child: Text("="),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(70, 70),
-                  ),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        backgroundColor: Colors.grey[800],
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget _buildNumberButton(String text, {bool isZero = false}) {
+    return Container(
+      width: isZero ? 160 : 75,
+      height: 75,
+      child: ElevatedButton(
+        onPressed: () => _addNumber(text),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.grey[700],
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 0,
+          shadowColor: Colors.transparent,
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOperationButton(String text, Color color, {VoidCallback? onPressed, bool isIcon = false}) {
+    return Container(
+      width: 75,
+      height: 75,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 2,
+          shadowColor: Colors.black.withOpacity(0.2),
+        ),
+        child: isIcon
+            ? Icon(Icons.backspace, size: 24)
+            : Text(
+                text,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
       ),
     );
   }
